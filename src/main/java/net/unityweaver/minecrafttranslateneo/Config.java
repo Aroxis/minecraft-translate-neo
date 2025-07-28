@@ -1,63 +1,48 @@
 package net.unityweaver.minecrafttranslateneo;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
+import net.unityweaver.minecrafttranslateneo.enums.Languages;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-// An example config class. This is not required, but it's a good idea to have one to keep your config organized.
-// Demonstrates how to use Forge's config APIs
 @Mod.EventBusSubscriber(modid = MinecraftTranslateModNeo.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class Config
-{
-    private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+public class Config {
 
-    private static final ForgeConfigSpec.BooleanValue LOG_DIRT_BLOCK = BUILDER
-            .comment("Whether to log the dirt block on common setup")
-            .define("logDirtBlock", true);
+    public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+    public static final ForgeConfigSpec SPEC;
+    public static final ForgeConfigSpec.ConfigValue<Languages> INCOMING_TARGET_LANGUAGE;
+    public static final ForgeConfigSpec.ConfigValue<Languages> OUTGOING_TARGET_LANGUAGE;
+    public static final ForgeConfigSpec.ConfigValue<Boolean> INCOMING_TRANSLATION_ENABLED;
+    public static final ForgeConfigSpec.ConfigValue<Boolean> OUTGOING_TRANSLATION_ENABLED;
 
-    private static final ForgeConfigSpec.IntValue MAGIC_NUMBER = BUILDER
-            .comment("A magic number")
-            .defineInRange("magicNumber", 42, 0, Integer.MAX_VALUE);
+    public static Languages incomingTargetLanguage;
+    public static Languages outgoingTargetLanguage;
+    public static boolean incomingTranslationEnabled;
+    public static boolean outgoingTranslationEnabled;
 
-    public static final ForgeConfigSpec.ConfigValue<String> MAGIC_NUMBER_INTRODUCTION = BUILDER
-            .comment("What you want the introduction message to be for the magic number")
-            .define("magicNumberIntroduction", "The magic number is... ");
+    static {
+        BUILDER.push("MinecraftTranslateNeo");
 
-    // a list of strings that are treated as resource locations for items
-    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> ITEM_STRINGS = BUILDER
-            .comment("A list of items to log on common setup.")
-            .defineListAllowEmpty("items", List.of("minecraft:iron_ingot"), Config::validateItemName);
+        INCOMING_TARGET_LANGUAGE = BUILDER.comment("What language the other players speech should be translated to")
+                .defineEnum("Incoming target language", Languages.Dutch);
+        INCOMING_TRANSLATION_ENABLED = BUILDER.comment("Enable or disable incoming translation")
+                .define("Incoming translation enabled", true);
+        OUTGOING_TARGET_LANGUAGE = BUILDER.comment("What language you want your speech to be translated to")
+                .defineEnum("Outgoing target language", Languages.English);
+        OUTGOING_TRANSLATION_ENABLED = BUILDER.comment("Enable or disable outgoing translation")
+                .define("Outgoing translation enabled", true);
 
-    static final ForgeConfigSpec SPEC = BUILDER.build();
-
-    public static boolean logDirtBlock;
-    public static int magicNumber;
-    public static String magicNumberIntroduction;
-    public static Set<Item> items;
-
-    private static boolean validateItemName(final Object obj)
-    {
-        return obj instanceof final String itemName && ForgeRegistries.ITEMS.containsKey(ResourceLocation.tryParse(itemName));
+        BUILDER.pop();
+        SPEC = BUILDER.build();
     }
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event)
     {
-        logDirtBlock = LOG_DIRT_BLOCK.get();
-        magicNumber = MAGIC_NUMBER.get();
-        magicNumberIntroduction = MAGIC_NUMBER_INTRODUCTION.get();
-
-        // convert the list of strings into a set of items
-        items = ITEM_STRINGS.get().stream()
-                .map(itemName -> ForgeRegistries.ITEMS.getValue(ResourceLocation.tryParse(itemName)))
-                .collect(Collectors.toSet());
+        incomingTargetLanguage = INCOMING_TARGET_LANGUAGE.get();
+        outgoingTargetLanguage = OUTGOING_TARGET_LANGUAGE.get();
+        incomingTranslationEnabled = INCOMING_TRANSLATION_ENABLED.get();
+        outgoingTranslationEnabled = OUTGOING_TRANSLATION_ENABLED.get();
     }
 }
