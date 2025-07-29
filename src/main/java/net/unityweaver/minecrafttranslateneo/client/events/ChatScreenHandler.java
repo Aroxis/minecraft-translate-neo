@@ -12,7 +12,7 @@ import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.unityweaver.minecrafttranslateneo.MinecraftTranslateModNeo;
-import net.unityweaver.minecrafttranslateneo.client.guis.InGameSettingsScreen;
+import net.unityweaver.minecrafttranslateneo.client.guis.SettingsScreen;
 import org.lwjgl.glfw.GLFW;
 
 /**
@@ -38,7 +38,7 @@ public class ChatScreenHandler {
         // Create language settings button using CommonButtons.language()
         settingsButton = CommonButtons.language(20, (button) -> {
             // Open settings screen when clicked
-            mc.setScreen(new InGameSettingsScreen());
+            mc.setScreen(new SettingsScreen());
         }, true); // true for icon-only button
         
         // Position the button in bottom-left corner

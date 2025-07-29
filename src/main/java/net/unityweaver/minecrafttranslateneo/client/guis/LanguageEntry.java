@@ -28,11 +28,9 @@ public class LanguageEntry extends ContainerObjectSelectionList.Entry<LanguageEn
     private static final Component BLOCKED = Component.translatable("gui.socialInteractions.status_blocked").withStyle(ChatFormatting.ITALIC);
     private static final Component OFFLINE = Component.translatable("gui.socialInteractions.status_offline").withStyle(ChatFormatting.ITALIC);
 
-    private static final int SKIN_SIZE = 24;
-    private static final int PADDING = 4;
-    private static final int CHAT_TOGGLE_ICON_SIZE = 20;
-    private static final int CHAT_TOGGLE_ICON_X = 0;
-    private static final int CHAT_TOGGLE_ICON_Y = 38;
+    private static final int ENTRY_HEIGHT = 16; // Smaller entry height
+    private static final int PADDING = 2;
+    private static final int TEXT_OFFSET_X = 4;
     public static final int SKIN_SHADE = FastColor.ARGB32.color(190, 0, 0, 0);
     public static final int BG_FILL = FastColor.ARGB32.color(255, 74, 74, 74);
     public static final int BG_FILL_REMOVED = FastColor.ARGB32.color(255, 48, 48, 48);
@@ -91,7 +89,7 @@ public class LanguageEntry extends ContainerObjectSelectionList.Entry<LanguageEn
         var output = Button.builder(buttonTextComponent, (p_100994_) -> {
             this.inGameSettingsScreen.setLanguage(this.language);
         })
-        .bounds(pX, pY, pWidth, pHeight)
+        .bounds(pX, pY, pWidth, ENTRY_HEIGHT) // Use smaller fixed height
         .build();
 
         output.setAlpha(0.0F);

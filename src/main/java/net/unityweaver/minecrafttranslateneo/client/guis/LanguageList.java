@@ -21,6 +21,7 @@ public class LanguageList extends ContainerObjectSelectionList<LanguageEntry> {
         this.setFilter("");
     }
 
+
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         updateSelectedLanguage();
@@ -75,4 +76,10 @@ public class LanguageList extends ContainerObjectSelectionList<LanguageEntry> {
     public boolean filterResultEmpty() {
         return this.children().isEmpty();
     }
+
+    @Override
+    public int getRowWidth() {
+        return 220; // Slightly narrower for better appearance
+    }
+
 }

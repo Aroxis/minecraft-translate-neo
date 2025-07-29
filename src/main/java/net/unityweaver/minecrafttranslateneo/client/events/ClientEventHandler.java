@@ -7,7 +7,8 @@ import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.unityweaver.minecrafttranslateneo.MinecraftTranslateModNeo;
-import net.unityweaver.minecrafttranslateneo.client.guis.InGameSettingsScreen;
+import net.unityweaver.minecrafttranslateneo.client.guis.SettingsScreen;
+import net.unityweaver.minecrafttranslateneo.client.managers.ChatManager;
 
 @Mod.EventBusSubscriber(modid = MinecraftTranslateModNeo.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ClientEventHandler {
@@ -18,13 +19,24 @@ public class ClientEventHandler {
     public static void onPlayerJoinLevel(EntityJoinLevelEvent event) {
         // Check if this is the client player joining a level
         if (event.getEntity() == Minecraft.getInstance().player && !hasShownScreen) {
+            // Install modified chat component first
+            ChatManager chatManager = ChatManager.getInstance();
+            if (!chatManager.isModifiedChatInstalled()) {
+                boolean installed = chatManager.installModifiedChat();
+                if (installed) {
+                    System.out.println("[MinecraftTranslateNeo] Successfully installed ModifiedChatComponent");
+                } else {
+                    System.err.println("[MinecraftTranslateNeo] Failed to install ModifiedChatComponent");
+                }
+            }
+            
             // Delay the screen opening slightly to ensure the world is fully loaded
             new Thread(() -> {
                 try {
                     Thread.sleep(1000); // Wait 1 second
                     Minecraft.getInstance().execute(() -> {
                         if (Minecraft.getInstance().screen == null) { // Only show if no other screen is open
-                            Minecraft.getInstance().setScreen(new InGameSettingsScreen());
+                            Minecraft.getInstance().setScreen(new SettingsScreen());
                         }
                     });
                     hasShownScreen = true; // Only show once per session

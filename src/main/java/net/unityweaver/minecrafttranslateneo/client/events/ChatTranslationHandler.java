@@ -12,6 +12,7 @@ import net.unityweaver.minecrafttranslateneo.Config;
 import net.unityweaver.minecrafttranslateneo.MinecraftTranslateModNeo;
 import net.unityweaver.minecrafttranslateneo.models.TranslationComponent;
 import net.unityweaver.minecrafttranslateneo.helpers.ComponentCosmeticsHelper;
+import net.unityweaver.minecrafttranslateneo.client.managers.ChatManager;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -37,21 +38,27 @@ public class ChatTranslationHandler {
 
         Component originalMessage = event.getMessage();
         
-        // Create translation component
+        // CUSTOM: Create translation component for incoming message
         TranslationComponent translationComponent = new TranslationComponent(
             originalMessage, 
             event.getSender()
         );
 
-        // Store for processing
+        // CUSTOM: Store for processing and inject into chat via ChatManager
         String translationId = "incoming_" + (++translationCounter);
         pendingTranslations.put(translationId, translationComponent);
-
-        // Add translation status message
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player != null) {
-            Component translatingMessage = ComponentCosmeticsHelper.createTranslatingComponent();
-            mc.player.displayClientMessage(translatingMessage, false);
+        
+        // CUSTOM: Inject the translation component into our modified chat
+        ChatManager chatManager = ChatManager.getInstance();
+        if (chatManager.isModifiedChatInstalled()) {
+            chatManager.injectTranslationMessage(translationComponent);
+        } else {
+            // Fallback: Add to regular chat if modified chat isn't installed
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player != null) {
+                Component translatingMessage = ComponentCosmeticsHelper.createTranslatingComponent();
+                mc.player.displayClientMessage(translatingMessage, false);
+            }
         }
 
         // TODO: Queue for actual translation processing
@@ -132,26 +139,43 @@ public class ChatTranslationHandler {
             return;
         }
 
-        translationComponent.completeTranslation(translatedText);
+        // CUSTOM: Update the translation component via ChatManager
+        ChatManager chatManager = ChatManager.getInstance();
+        if (chatManager.isModifiedChatInstalled()) {
+            // Use the ChatManager to update the translation
+            chatManager.updateTranslation(translationComponent, translatedText);
+        } else {
+            // Fallback: Manual completion and display
+            translationComponent.completeTranslation(translatedText);
+            
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player != null) {
+                // Display original message
+                Component originalComponent = ComponentCosmeticsHelper.withGrayStyle(
+                    translationComponent.getOriginalComponent()
+                );
+                mc.player.displayClientMessage(originalComponent, false);
 
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player != null) {
-            // Display original message
-            Component originalComponent = ComponentCosmeticsHelper.withGrayStyle(
-                translationComponent.getOriginalComponent()
-            );
-            mc.player.displayClientMessage(originalComponent, false);
-
-            // Display translated message
-            Component translatedComponent = translationComponent.getTranslatedComponent();
-            if (translatedComponent != null) {
-                mc.player.displayClientMessage(translatedComponent, false);
+                // Display translated message
+                Component translatedComponent = translationComponent.getTranslatedComponent();
+                if (translatedComponent != null) {
+                    mc.player.displayClientMessage(translatedComponent, false);
+                }
             }
-
-            // If this was an outgoing message, actually send the translated version
-            if (translationId.startsWith("outgoing_") && translationComponent.isOwnMessage()) {
-                // Send the translated message to the server
-                mc.player.connection.sendChat(translatedText);
+        }
+        
+        // CUSTOM: Handle outgoing message sending via ModifiedChatComponent
+        if (translationId.startsWith("outgoing_") && translationComponent.isOwnMessage()) {
+            chatManager = ChatManager.getInstance();
+            if (chatManager.isModifiedChatInstalled()) {
+                // Use the ModifiedChatComponent's sendTranslatedMessage method
+                chatManager.getModifiedChatComponent().sendTranslatedMessage(translatedText);
+            } else {
+                // Fallback: Direct sending if ModifiedChatComponent isn't available
+                Minecraft mc = Minecraft.getInstance();
+                if (mc.player != null) {
+                    mc.player.connection.sendChat(translatedText);
+                }
             }
         }
     }
@@ -177,7 +201,14 @@ public class ChatTranslationHandler {
 
             // If this was an outgoing message, send the original message instead
             if (translationId.startsWith("outgoing_") && translationComponent.isOwnMessage()) {
-                mc.player.connection.sendChat(translationComponent.getOriginalText());
+                ChatManager chatManager = ChatManager.getInstance();
+                if (chatManager.isModifiedChatInstalled()) {
+                    // Use ModifiedChatComponent to send original message on failure
+                    chatManager.getModifiedChatComponent().sendTranslatedMessage(translationComponent.getOriginalText());
+                } else {
+                    // Fallback: Direct sending
+                    mc.player.connection.sendChat(translationComponent.getOriginalText());
+                }
             }
         }
     }

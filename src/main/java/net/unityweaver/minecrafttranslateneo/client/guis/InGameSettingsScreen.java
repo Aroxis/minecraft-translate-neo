@@ -11,7 +11,6 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.unityweaver.minecrafttranslateneo.client.guis.clonedcomponents.ClonedCheckbox;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -23,12 +22,12 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.UUID;
 
-public class InGameSettingsScreen extends Screen {
+public class InGameSettingsScreen extends BaseTranslationScreen {
 
     private static final ResourceLocation DEMO_BACKGROUND_LOCATION =
-            ResourceLocation.fromNamespaceAndPath("minecraft", "social_interactions/background");
+            ResourceLocation.fromNamespaceAndPath("minecrafttranslateneo", "textures/gui/sprites/social_interactions/background.png");
     private static final ResourceLocation SEARCH_BACKGROUND_LOCATION =
-            ResourceLocation.fromNamespaceAndPath("minecraft", "icon/search");
+            ResourceLocation.fromNamespaceAndPath("minecrafttranslateneo", "textures/gui/sprites/icon/search.png");
 
     private static final Component SEARCH_HINT = Component.translatable("gui.socialInteractions.search_hint").withStyle(ChatFormatting.ITALIC).withStyle(ChatFormatting.GRAY);
     private static final Component EMPTY_SEARCH = Component.literal("No languages found by that name").withStyle(ChatFormatting.GRAY);
@@ -55,7 +54,7 @@ public class InGameSettingsScreen extends Screen {
     private Runnable postRenderRunnable;
 
     public InGameSettingsScreen() {
-        super(Component.literal("Settings"));
+        super(Component.literal("Settings"), BackgroundType.BLURRED);
     }
 
     private int windowHeight() {
@@ -94,9 +93,9 @@ public class InGameSettingsScreen extends Screen {
 
             this.languageList = new LanguageList
                     (this, this.minecraft, this.width, this.height,
-                            88, this.listEnd(), 36);
+                            88, this.listEnd(), 18);
         } else {
-            this.languageList = new LanguageList(this, this.minecraft, this.width, this.height, 88, this.listEnd(), 36);
+            this.languageList = new LanguageList(this, this.minecraft, this.width, this.height, 88, this.listEnd(), 18);
         }
 
         inputTranslationCheckbox =
@@ -227,18 +226,51 @@ public class InGameSettingsScreen extends Screen {
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             int i = (this.width - 248) / 2;
             int j = (this.height - 166) / 2;
-            guiGraphics.blit(DEMO_BACKGROUND_LOCATION, i, j, 0, 0, 248, 166);
+            // Implement proper nine-slice rendering for 248x166 dialog
+            int targetWidth = 248;
+            int targetHeight = 166;
+            int border = 8; // From mcmeta file
+            
+            // Calculate dimensions
+            int centerWidth = targetWidth - (border * 2);
+            int centerHeight = targetHeight - (border * 2);
+            
+            // Top-left corner
+            guiGraphics.blit(DEMO_BACKGROUND_LOCATION, i, j, 0, 0, border, border, 236, 34);
+            // Top edge
+            guiGraphics.blit(DEMO_BACKGROUND_LOCATION, i + border, j, border, 0, centerWidth, border, 236, 34);
+            // Top-right corner  
+            guiGraphics.blit(DEMO_BACKGROUND_LOCATION, i + targetWidth - border, j, 236 - border, 0, border, border, 236, 34);
+            
+            // Left edge
+            guiGraphics.blit(DEMO_BACKGROUND_LOCATION, i, j + border, 0, border, border, centerHeight, 236, 34);
+            // Center (tiled)
+            guiGraphics.blit(DEMO_BACKGROUND_LOCATION, i + border, j + border, border, border, centerWidth, centerHeight, 236, 34);
+            // Right edge
+            guiGraphics.blit(DEMO_BACKGROUND_LOCATION, i + targetWidth - border, j + border, 236 - border, border, border, centerHeight, 236, 34);
+            
+            // Bottom-left corner
+            guiGraphics.blit(DEMO_BACKGROUND_LOCATION, i, j + targetHeight - border, 0, 34 - border, border, border, 236, 34);
+            // Bottom edge
+            guiGraphics.blit(DEMO_BACKGROUND_LOCATION, i + border, j + targetHeight - border, border, 34 - border, centerWidth, border, 236, 34);
+            // Bottom-right corner
+            guiGraphics.blit(DEMO_BACKGROUND_LOCATION, i + targetWidth - border, j + targetHeight - border, 236 - border, 34 - border, border, border, 236, 34);
         } else {
             int i = this.marginX() + 3;
-            guiGraphics.blit(SEARCH_BACKGROUND_LOCATION, i, 64, 1, 1, 236, 8);
+            // Render background using direct texture blitting with nine-slice sections
+            // Top section
+            guiGraphics.blit(DEMO_BACKGROUND_LOCATION, i, 64, 1, 1, 236, 8, 236, 34);
             int j = this.backgroundUnits();
 
+            // Middle sections (repeating)
             for(int k = 0; k < j; ++k) {
-                guiGraphics.blit(SEARCH_BACKGROUND_LOCATION, i, 72 + 16 * k, 1, 10, 236, 16);
+                guiGraphics.blit(DEMO_BACKGROUND_LOCATION, i, 72 + 16 * k, 1, 10, 236, 16, 236, 34);
             }
 
-            guiGraphics.blit(SEARCH_BACKGROUND_LOCATION, i, 72 + 16 * j, 1, 27, 236, 8);
-            guiGraphics.blit(SEARCH_BACKGROUND_LOCATION, i + 10, 76, 243, 1, 12, 12);
+            // Bottom section
+            guiGraphics.blit(DEMO_BACKGROUND_LOCATION, i, 72 + 16 * j, 1, 27, 236, 8, 236, 34);
+            // Render search icon
+            guiGraphics.blit(SEARCH_BACKGROUND_LOCATION, i + 10, 76, 0, 0, 12, 12, 12, 12);
         }
     }
 
