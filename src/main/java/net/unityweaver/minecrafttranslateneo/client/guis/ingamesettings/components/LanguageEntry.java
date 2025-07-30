@@ -1,5 +1,6 @@
-package net.unityweaver.minecrafttranslateneo.client.guis;
+package net.unityweaver.minecrafttranslateneo.client.guis.ingamesettings.components;
 
+import net.unityweaver.minecrafttranslateneo.client.guis.ingamesettings.InGameSettingsScreen;
 import net.unityweaver.minecrafttranslateneo.enums.Languages;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.ChatFormatting;
@@ -53,18 +54,13 @@ public class LanguageEntry extends ContainerObjectSelectionList.Entry<LanguageEn
     }
 
     public void render(GuiGraphics guiGraphics, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {
-        int i = pLeft + 4;
-        int j = pTop + (pHeight - 24) / 2;
-        int k = i + 24 + 4;
-        Component component = this.getStatusComponent();
-        int l;
-        if (component == Component.empty()) {
-            guiGraphics.fill(pLeft, pTop, pLeft + pWidth, pTop + pHeight, BG_FILL);
-            l = pTop + (pHeight - 9) / 2;
+        // Simple clean background
+        if (this.isSelected()) {
+            // Highlight selected item
+            guiGraphics.fill(pLeft, pTop, pLeft + pWidth, pTop + pHeight, FastColor.ARGB32.color(100, 0, 255, 0));
         } else {
-            guiGraphics.fill(pLeft, pTop, pLeft + pWidth, pTop + pHeight, BG_FILL_REMOVED);
-            l = pTop + (pHeight - (9 + 9)) / 2;
-            guiGraphics.drawString(this.minecraft.font, component, k, l + 12, PLAYER_STATUS_COLOR);
+            // Default background
+            guiGraphics.fill(pLeft, pTop, pLeft + pWidth, pTop + pHeight, FastColor.ARGB32.color(50, 64, 64, 64));
         }
 
         var selectButton = createSelectButton(pLeft, pTop, pWidth, pHeight);
@@ -86,13 +82,21 @@ public class LanguageEntry extends ContainerObjectSelectionList.Entry<LanguageEn
             buttonTextComponent = buttonTextComponent.copy().withStyle(ChatFormatting.GREEN);
         }
 
-        var output = Button.builder(buttonTextComponent, (p_100994_) -> {
-            this.inGameSettingsScreen.setLanguage(this.language);
-        })
-        .bounds(pX, pY, pWidth, ENTRY_HEIGHT) // Use smaller fixed height
-        .build();
+        // Use proper dimensions with padding
+        int buttonX = pX + 2;
+        int buttonY = pY + 1;
+        int buttonWidth = pWidth - 4;
+        int buttonHeight = pHeight - 2;
 
-        output.setAlpha(0.0F);
+        var output = Button.builder(buttonTextComponent, (p_100994_) -> {
+                    // Set the language for the current page context and navigate back
+                    this.inGameSettingsScreen.setCurrentPageLanguage(this.language);
+                })
+                .bounds(buttonX, buttonY, buttonWidth, buttonHeight)
+                .build();
+
+        // Don't set alpha to 0 - we want the button to be visible
+        // output.setAlpha(0.0F);
 
         return output;
     }

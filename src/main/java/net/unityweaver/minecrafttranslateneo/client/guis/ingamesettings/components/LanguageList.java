@@ -1,5 +1,7 @@
-package net.unityweaver.minecrafttranslateneo.client.guis;
+package net.unityweaver.minecrafttranslateneo.client.guis.ingamesettings.components;
 
+import net.unityweaver.minecrafttranslateneo.client.guis.ingamesettings.InGameSettingsScreen;
+import net.unityweaver.minecrafttranslateneo.client.guis.ingamesettings.components.LanguageEntry;
 import net.unityweaver.minecrafttranslateneo.enums.Languages;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -16,7 +18,7 @@ public class LanguageList extends ContainerObjectSelectionList<LanguageEntry> {
     private String filter;
 
     public LanguageList(InGameSettingsScreen inGameSettingsScreen, Minecraft pMinecraft, int pWidth, int pHeight, int pY0, int pY1, int pItemHeight) {
-        super(pMinecraft, pWidth, pHeight, pY0, pY1);
+        super(pMinecraft, pWidth, pHeight, pY0, pItemHeight);
         this.inGameSettingsScreen = inGameSettingsScreen;
         this.setFilter("");
     }

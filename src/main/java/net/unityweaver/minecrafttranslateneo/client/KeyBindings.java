@@ -9,7 +9,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.unityweaver.minecrafttranslateneo.MinecraftTranslateModNeo;
-import net.unityweaver.minecrafttranslateneo.client.guis.InGameSettingsScreen;
+import net.unityweaver.minecrafttranslateneo.client.guis.ingamesettings.InGameSettingsScreen;
 import net.unityweaver.minecrafttranslateneo.client.guis.TranslationDebugOverlay;
 import org.lwjgl.glfw.GLFW;
 

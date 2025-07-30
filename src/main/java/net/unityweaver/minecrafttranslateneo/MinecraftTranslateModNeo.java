@@ -21,6 +21,12 @@ import org.slf4j.Logger;
 public class MinecraftTranslateModNeo {
     // Define mod id in a common place for everything to reference
     public static final String MOD_ID = "minecrafttranslatemodneo";
+    
+    // Mod information - easy to update for version changes
+    public static final String MOD_NAME = "Minecraft Translate Alpha";
+    public static final String MOD_VERSION = "1.0";
+    public static final String MOD_AUTHOR = "UnityWeaver";
+    
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
 

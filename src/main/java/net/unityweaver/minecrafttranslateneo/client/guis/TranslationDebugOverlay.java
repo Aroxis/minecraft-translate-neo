@@ -1,6 +1,7 @@
 package net.unityweaver.minecrafttranslateneo.client.guis;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -10,6 +11,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.unityweaver.minecrafttranslateneo.Config;
 import net.unityweaver.minecrafttranslateneo.MinecraftTranslateModNeo;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +45,7 @@ public class TranslationDebugOverlay {
         if (event.phase != TickEvent.Phase.END || !debugVisible) return;
         
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.level == null || mc.screen != null) return;
+        if (mc.player == null || mc.level == null) return;
         
         tickCounter++;
         
@@ -98,6 +100,9 @@ public class TranslationDebugOverlay {
         
         info.add("§eIncoming: §b" + inLang + " §eOutgoing: §b" + outLang);
         
+        // Current screen information
+        info.add("§eScreen: " + getCurrentScreenInfo());
+        
         // System info - language API simplified for compatibility
         info.add("§eMinecraft Lang: §f" + "Current");
         
@@ -109,5 +114,85 @@ public class TranslationDebugOverlay {
         info.add("§7F4: Toggle Debug | T: Settings");
         
         return info;
+    }
+    
+    /**
+     * Get the current screen information using reflection
+     */
+    private static String getCurrentScreenInfo() {
+        Minecraft mc = Minecraft.getInstance();
+        Screen currentScreen = mc.screen;
+        
+        if (currentScreen == null) {
+            return "§7Game (No GUI)";
+        }
+        
+        try {
+            String screenClassName = currentScreen.getClass().getSimpleName();
+            
+            // Try to get the title if it exists
+            String title = getScreenTitle(currentScreen);
+            
+            if (title != null && !title.isEmpty()) {
+                return "§f" + screenClassName + " §8(§7" + title + "§8)";
+            } else {
+                return "§f" + screenClassName;
+            }
+        } catch (Exception e) {
+            return "§c" + currentScreen.getClass().getSimpleName() + " §8(Error)";
+        }
+    }
+    
+    /**
+     * Attempt to extract screen title using reflection
+     */
+    private static String getScreenTitle(Screen screen) {
+        try {
+            // Try common title field names
+            String[] titleFieldNames = {"title", "screenTitle", "name"};
+            
+            for (String fieldName : titleFieldNames) {
+                Field titleField = findField(screen.getClass(), fieldName);
+                if (titleField != null) {
+                    titleField.setAccessible(true);
+                    Object titleObj = titleField.get(screen);
+                    
+                    if (titleObj instanceof Component) {
+                        return ((Component) titleObj).getString();
+                    } else if (titleObj instanceof String) {
+                        return (String) titleObj;
+                    }
+                }
+            }
+            
+            // Try to get title using public methods
+            try {
+                var getTitle = screen.getClass().getMethod("getTitle");
+                if (getTitle.getReturnType() == Component.class) {
+                    Component titleComponent = (Component) getTitle.invoke(screen);
+                    return titleComponent != null ? titleComponent.getString() : null;
+                }
+            } catch (Exception ignored) {}
+            
+        } catch (Exception e) {
+            // Silently ignore reflection errors
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Find a field in the class hierarchy
+     */
+    private static Field findField(Class<?> clazz, String fieldName) {
+        Class<?> currentClass = clazz;
+        while (currentClass != null) {
+            try {
+                return currentClass.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e) {
+                currentClass = currentClass.getSuperclass();
+            }
+        }
+        return null;
     }
 }

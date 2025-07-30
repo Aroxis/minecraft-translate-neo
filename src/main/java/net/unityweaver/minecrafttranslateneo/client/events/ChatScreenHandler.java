@@ -1,18 +1,15 @@
 package net.unityweaver.minecrafttranslateneo.client.events;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CommonButtons;
 import net.minecraft.client.gui.components.SpriteIconButton;
 import net.minecraft.client.gui.screens.ChatScreen;
-import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.unityweaver.minecrafttranslateneo.MinecraftTranslateModNeo;
-import net.unityweaver.minecrafttranslateneo.client.guis.SettingsScreen;
+import net.unityweaver.minecrafttranslateneo.client.guis.ingamesettings.InGameSettingsScreen;
 import org.lwjgl.glfw.GLFW;
 
 /**
@@ -38,7 +35,7 @@ public class ChatScreenHandler {
         // Create language settings button using CommonButtons.language()
         settingsButton = CommonButtons.language(20, (button) -> {
             // Open settings screen when clicked
-            mc.setScreen(new SettingsScreen());
+            mc.setScreen(new InGameSettingsScreen());
         }, true); // true for icon-only button
         
         // Position the button in bottom-left corner
