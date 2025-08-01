@@ -8,7 +8,6 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.network.chat.Component;
 import net.unityweaver.minecrafttranslateneo.client.guis.BaseTranslationScreen;
-import net.unityweaver.minecrafttranslateneo.client.guis.homemenuscreens.TranslationSettingsScreen;
 import net.unityweaver.minecrafttranslateneo.enums.Languages;
 
 import java.util.List;
@@ -83,7 +82,8 @@ public class LanguagePickerScreen extends BaseTranslationScreen {
                 this.minecraft.setScreen(this.parentSettingsScreen);
             } else {
                 // Fallback to new instance if no parent provided
-                this.minecraft.setScreen(new TranslationSettingsScreen(null));
+//                this.minecraft.setScreen(new TranslationSettingsScreen(null));
+                throw new IllegalStateException("No parent settings screen provided for LanguagePickerScreen");
             }
         }).bounds(centerX - 50, panelTop + panelHeight - 35, 100, 20).build();
         this.addRenderableWidget(this.cancelButton);
